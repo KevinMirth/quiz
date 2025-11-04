@@ -1,0 +1,25 @@
+# Ignorare dependențe Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Ignorare build-uri
+build/
+dist/
+target/
+
+# Ignorare fișiere IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# Ignorare fișiere de sistem
+.DS_Store
+Thumbs.db
+
+# Ignorare fișiere de configurare locale
+*.env
+*.local
