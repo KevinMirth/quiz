@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
+import authService from './services/authService';
 import './App.css';
 
 function App() {
@@ -11,15 +12,21 @@ function App() {
   // Verifică dacă utilizatorul este deja autentificat
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
-    if (savedUser) {
+    const token = authService.getCurrentToken();
+    
+    // Verifică dacă există și user și token JWT
+    if (savedUser && token) {
       try {
         const parsedUser = JSON.parse(savedUser);
         setUser(parsedUser);
         setCurrentView('dashboard');
       } catch (error) {
         console.error('Error parsing saved user:', error);
-        localStorage.removeItem('user');
+        authService.logout();
       }
+    } else {
+      // Dacă lipsește token-ul sau user-ul, logout complet
+      authService.logout();
     }
   }, []);
 
@@ -33,7 +40,7 @@ function App() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('user');
+    authService.logout();
     setUser(null);
     setCurrentView('login');
   };

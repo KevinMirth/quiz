@@ -1,12 +1,18 @@
 import React from 'react';
+import authService from '../services/authService';
 import './Dashboard.css';
 
 const Dashboard = ({ user, onLogout }) => {
+  const handleLogout = () => {
+    authService.logout();
+    onLogout();
+  };
+  
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
         <h1>Bine ai venit, {user.username}! 🎉</h1>
-        <button onClick={onLogout} className="btn-logout">
+        <button onClick={handleLogout} className="btn-logout">
           Logout
         </button>
       </div>

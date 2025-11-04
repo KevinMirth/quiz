@@ -6,6 +6,7 @@ import com.quiz.dto.RegisterRequest;
 import com.quiz.model.User;
 import com.quiz.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -15,6 +16,9 @@ public class UserService {
     
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     
     public AuthResponse registerUser(RegisterRequest request) {
         // Verifică dacă username-ul există deja
@@ -31,45 +35,11 @@ public class UserService {
         User user = new User();
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
-        // IMPORTANT: În producție, parola trebuie criptată cu BCrypt!
-        // Pentru simplitate, o salvăm direct acum
-        user.setPassword(request.getPassword());
+        // Criptează parola cu BCrypt
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         
         User savedUser = userRepository.save(user);
         
-        return new AuthResponse(
-            savedUser.getId(),
-            savedUser.getUsername(),
-            savedUser.getEmail(),
-            "User registered successfully!"
-        );
-    }
-    
-    public AuthResponse loginUser(LoginRequest request) {
-        // Caută utilizatorul după username sau email
-        Optional<User> userOptional = userRepository.findByUsername(request.getUsernameOrEmail());
-        
-        if (userOptional.isEmpty()) {
-            userOptional = userRepository.findByEmail(request.getUsernameOrEmail());
-        }
-        
-        if (userOptional.isEmpty()) {
-            return new AuthResponse("User not found!");
-        }
-        
-        User user = userOptional.get();
-        
-        // Verifică parola
-        // IMPORTANT: În producție, folosește BCrypt pentru comparare!
-        if (!user.getPassword().equals(request.getPassword())) {
-            return new AuthResponse("Invalid password!");
-        }
-        
-        return new AuthResponse(
-            user.getId(),
-            user.getUsername(),
-            user.getEmail(),
-            "Login successful!"
-        );
+        return new AuthResponse("User registered successfully!");
     }
 }

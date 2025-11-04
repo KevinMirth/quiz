@@ -9,6 +9,20 @@ const api = axios.create({
   },
 });
 
+// Interceptor pentru a adăuga JWT token la fiecare request
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 const authService = {
   register: async (userData) => {
     try {
@@ -35,10 +49,23 @@ const authService = {
   login: async (credentials) => {
     try {
       const response = await api.post('/auth/login', credentials);
+      if (response.data.token) {
+        // Salvează JWT token în localStorage
+        localStorage.setItem('token', response.data.token);
+      }
       return response.data;
     } catch (error) {
       throw error.response?.data || { message: 'Login failed' };
     }
+  },
+  
+  logout: () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+  },
+  
+  getCurrentToken: () => {
+    return localStorage.getItem('token');
   },
 
   test: async () => {

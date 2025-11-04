@@ -3,11 +3,17 @@ package com.quiz.controller;
 import com.quiz.dto.AuthResponse;
 import com.quiz.dto.LoginRequest;
 import com.quiz.dto.RegisterRequest;
+import com.quiz.security.jwt.JwtUtils;
+import com.quiz.security.services.UserDetailsImpl;
 import com.quiz.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +24,12 @@ import java.util.Map;
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "http://localhost:3000")
 public class AuthController {
+    
+    @Autowired
+    private AuthenticationManager authenticationManager;
+    
+    @Autowired
+    private JwtUtils jwtUtils;
     
     @Autowired
     private UserService userService;
@@ -32,13 +44,12 @@ public class AuthController {
             return ResponseEntity.badRequest().body(errors);
         }
         
-        AuthResponse response = userService.registerUser(request);
-        
-        if (response.getId() == null) {
-            return ResponseEntity.badRequest().body(response);
+        try {
+            AuthResponse response = userService.registerUser(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new AuthResponse("Registration failed: " + e.getMessage()));
         }
-        
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
     
     @PostMapping("/login")
@@ -51,13 +62,31 @@ public class AuthController {
             return ResponseEntity.badRequest().body(errors);
         }
         
-        AuthResponse response = userService.loginUser(request);
-        
-        if (response.getId() == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        try {
+            // Autentifică utilizatorul cu Spring Security
+            Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getUsernameOrEmail(), request.getPassword())
+            );
+            
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            
+            // Generează JWT token
+            String jwt = jwtUtils.generateJwtToken(authentication);
+            
+            // Obține detaliile utilizatorului autentificat
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            
+            // Returnează response cu token
+            return ResponseEntity.ok(new AuthResponse(
+                jwt,
+                userDetails.getId(),
+                userDetails.getUsername(),
+                userDetails.getEmail()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new AuthResponse("Invalid username or password!"));
         }
-        
-        return ResponseEntity.ok(response);
     }
     
     @GetMapping("/test")
