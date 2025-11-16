@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
+import Profile from './components/Profile';
 import authService from './services/authService';
 import './App.css';
 
@@ -47,6 +48,8 @@ function App() {
 
   const switchToLogin = () => setCurrentView('login');
   const switchToRegister = () => setCurrentView('register');
+  const switchToProfile = () => setCurrentView('profile');
+  const switchToDashboard = () => setCurrentView('dashboard');
 
   return (
     <div className="App">
@@ -65,7 +68,18 @@ function App() {
       )}
       
       {currentView === 'dashboard' && user && (
-        <Dashboard user={user} onLogout={handleLogout} />
+        <Dashboard 
+          user={user} 
+          onProfileClick={switchToProfile}
+        />
+      )}
+
+      {currentView === 'profile' && user && (
+        <Profile 
+          user={user} 
+          onBack={switchToDashboard}
+          onLogout={handleLogout}
+        />
       )}
     </div>
   );

@@ -13,8 +13,33 @@ CREATE TABLE IF NOT EXISTS users (
     INDEX idx_email (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Verificare tabel
+-- Creare tabelă quizzes
+CREATE TABLE IF NOT EXISTS quizzes (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    title VARCHAR(255) DEFAULT 'Quiz fără titlu',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_user_id (user_id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Creare tabelă questions
+CREATE TABLE IF NOT EXISTS questions (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    quiz_id BIGINT NOT NULL,
+    question_text TEXT NOT NULL,
+    answer_text VARCHAR(500) NOT NULL,
+    question_number INT NOT NULL,
+    INDEX idx_quiz_id (quiz_id),
+    FOREIGN KEY (quiz_id) REFERENCES quizzes(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Verificare tabele
 DESC users;
+DESC quizzes;
+DESC questions;
 
 -- Afișare utilizatori (pentru testare)
 -- SELECT * FROM users;
+-- SELECT * FROM quizzes;
+-- SELECT * FROM questions;
