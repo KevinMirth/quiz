@@ -12,9 +12,12 @@ const api = axios.create({
 // Interceptor pentru a adăuga JWT token la fiecare request
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('authToken') || localStorage.getItem('token');
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
+      console.log('Adding Authorization header with token');
+    } else {
+      console.log('No token found in localStorage');
     }
     return config;
   },
@@ -50,8 +53,10 @@ const authService = {
     try {
       const response = await api.post('/auth/login', credentials);
       if (response.data.token) {
-        // Salvează JWT token în localStorage
+        // Salvează JWT token în localStorage (și cu ambele chei pentru compatibilitate)
         localStorage.setItem('token', response.data.token);
+        localStorage.setItem('authToken', response.data.token);
+        console.log('Token saved successfully');
       }
       return response.data;
     } catch (error) {
@@ -61,11 +66,12 @@ const authService = {
   
   logout: () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('authToken');
     localStorage.removeItem('user');
   },
   
   getCurrentToken: () => {
-    return localStorage.getItem('token');
+    return localStorage.getItem('authToken') || localStorage.getItem('token');
   },
 
   test: async () => {

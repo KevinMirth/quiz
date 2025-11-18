@@ -31,6 +31,7 @@ public class JwtUtils {
         
         return Jwts.builder()
                 .subject(userPrincipal.getUsername())
+                .claim("role", userPrincipal.getRole().name())  // Include rolul în JWT
                 .issuedAt(new Date())
                 .expiration(new Date((new Date()).getTime() + jwtExpirationMs))
                 .signWith(getSigningKey())
@@ -51,6 +52,16 @@ public class JwtUtils {
                 .parseSignedClaims(token)
                 .getPayload()
                 .getSubject();
+    }
+    
+    // Extrage rolul din token JWT
+    public String getRoleFromJwtToken(String token) {
+        return Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("role", String.class);
     }
     
     // Validează token-ul JWT

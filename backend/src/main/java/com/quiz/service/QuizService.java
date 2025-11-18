@@ -68,6 +68,17 @@ public class QuizService {
         return buildQuizResponse(quiz, questions);
     }
     
+    public List<QuizResponse> getAllQuizzes() {
+        List<Quiz> quizzes = quizRepository.findAll();
+        
+        return quizzes.stream()
+                .map(quiz -> {
+                    List<Question> questions = questionRepository.findByQuizIdOrderByQuestionNumber(quiz.getId());
+                    return buildQuizResponse(quiz, questions);
+                })
+                .collect(Collectors.toList());
+    }
+    
     private QuizResponse buildQuizResponse(Quiz quiz, List<Question> questions) {
         QuizResponse response = new QuizResponse();
         response.setId(quiz.getId());

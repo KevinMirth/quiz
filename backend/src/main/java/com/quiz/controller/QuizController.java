@@ -6,6 +6,7 @@ import com.quiz.security.services.UserDetailsImpl;
 import com.quiz.service.QuizService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,19 +21,33 @@ public class QuizController {
     private QuizService quizService;
     
     @PostMapping("/create")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createQuiz(@RequestBody CreateQuizRequest request, Authentication authentication) {
         try {
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return ResponseEntity.status(401).body("Nu ești autentificat!");
+            }
+            
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
             Long userId = userDetails.getId();
             
+            System.out.println("Creating quiz for user: " + userId);
+            System.out.println("Quiz title: " + request.getTitle());
+            System.out.println("Number of questions: " + request.getQuestions().size());
+            
             QuizResponse quiz = quizService.createQuiz(userId, request);
             return ResponseEntity.ok(quiz);
+        } catch (ClassCastException e) {
+            System.err.println("Authentication principal is not UserDetailsImpl: " + e.getMessage());
+            return ResponseEntity.status(403).body("Token invalid sau expirat!");
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.badRequest().body("Error creating quiz: " + e.getMessage());
         }
     }
     
     @GetMapping("/my-quizzes")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getMyQuizzes(Authentication authentication) {
         try {
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
@@ -52,6 +67,17 @@ public class QuizController {
             return ResponseEntity.ok(quiz);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error fetching quiz: " + e.getMessage());
+        }
+    }
+    
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> getAllQuizzes() {
+        try {
+            List<QuizResponse> quizzes = quizService.getAllQuizzes();
+            return ResponseEntity.ok(quizzes);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error fetching quizzes: " + e.getMessage());
         }
     }
 }

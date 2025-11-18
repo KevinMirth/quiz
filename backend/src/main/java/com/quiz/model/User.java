@@ -36,11 +36,18 @@ public class User {
     @Column(nullable = false)
     private String password;
     
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role = Role.USER;  // Default role
+    
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+        if (role == null) {
+            role = Role.USER;
+        }
     }
 }

@@ -38,6 +38,14 @@ const CreateQuiz = ({ onQuizCreated }) => {
 
     try {
       const token = authService.getCurrentToken();
+      console.log('Token:', token ? 'exists' : 'missing');
+      
+      if (!token) {
+        setError('Nu ești autentificat! Te rog să te loghezi din nou.');
+        setLoading(false);
+        return;
+      }
+
       const response = await axios.post(
         'http://localhost:8080/api/quiz/create',
         {
@@ -46,11 +54,13 @@ const CreateQuiz = ({ onQuizCreated }) => {
         },
         {
           headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
           }
         }
       );
 
+      console.log('Quiz created successfully:', response.data);
       alert('Quiz-ul a fost creat cu succes! ✅');
       
       // Resetează formularul
@@ -73,7 +83,25 @@ const CreateQuiz = ({ onQuizCreated }) => {
       }
     } catch (err) {
       console.error('Error creating quiz:', err);
-      setError('Eroare la crearea quiz-ului. Încearcă din nou!');
+      console.error('Error response:', err.response);
+      
+      let errorMessage = 'Eroare la crearea quiz-ului. Încearcă din nou!';
+      
+      if (err.response) {
+        if (err.response.status === 401) {
+          errorMessage = 'Sesiunea ta a expirat! Te rog să te loghezi din nou.';
+        } else if (err.response.status === 403) {
+          errorMessage = 'Nu ai permisiunea să creezi quiz-uri!';
+        } else if (err.response.data) {
+          errorMessage = typeof err.response.data === 'string' 
+            ? err.response.data 
+            : 'Eroare la server. Verifică console-ul pentru detalii.';
+        }
+      } else if (err.request) {
+        errorMessage = 'Nu se poate conecta la server. Verifică dacă backend-ul rulează!';
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

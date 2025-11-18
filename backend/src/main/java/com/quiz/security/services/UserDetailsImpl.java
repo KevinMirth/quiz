@@ -1,8 +1,10 @@
 package com.quiz.security.services;
 
 import com.quiz.model.User;
+import com.quiz.model.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -20,11 +22,14 @@ public class UserDetailsImpl implements UserDetails {
     @JsonIgnore
     private String password;
     
-    public UserDetailsImpl(Long id, String username, String email, String password) {
+    private Role role;
+    
+    public UserDetailsImpl(Long id, String username, String email, String password, Role role) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.password = password;
+        this.role = role;
     }
     
     // Construiește UserDetailsImpl din User entity
@@ -33,14 +38,15 @@ public class UserDetailsImpl implements UserDetails {
             user.getId(),
             user.getUsername(),
             user.getEmail(),
-            user.getPassword()
+            user.getPassword(),
+            user.getRole()
         );
     }
     
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Momentan nu avem roluri, returnăm listă goală
-        return Collections.emptyList();
+        // Returnăm rolul cu prefixul ROLE_ (Spring Security convention)
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
     
     public Long getId() {
@@ -49,6 +55,10 @@ public class UserDetailsImpl implements UserDetails {
     
     public String getEmail() {
         return email;
+    }
+    
+    public Role getRole() {
+        return role;
     }
     
     @Override

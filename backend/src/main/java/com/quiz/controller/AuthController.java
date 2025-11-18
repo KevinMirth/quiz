@@ -76,12 +76,13 @@ public class AuthController {
             // Obține detaliile utilizatorului autentificat
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
             
-            // Returnează response cu token
+            // Returnă response cu token
             return ResponseEntity.ok(new AuthResponse(
                 jwt,
                 userDetails.getId(),
                 userDetails.getUsername(),
-                userDetails.getEmail()
+                userDetails.getEmail(),
+                userDetails.getRole().name()
             ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)

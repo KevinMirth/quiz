@@ -6,6 +6,10 @@ import './Dashboard.css';
 const Dashboard = ({ user, onProfileClick }) => {
   const [activeView, setActiveView] = useState('home');
   const [refreshQuizzes, setRefreshQuizzes] = useState(0);
+  
+  // Verifică rolul utilizatorului
+  const isAdmin = user?.role === 'ADMIN';
+  const isUser = user?.role === 'USER';
 
   const handleQuizCreated = () => {
     // Schimbă view-ul la "Quiz-urile Mele"
@@ -39,24 +43,42 @@ const Dashboard = ({ user, onProfileClick }) => {
             >
               🏠 Acasă
             </button>
-            <button 
-              className={`menu-item ${activeView === 'create' ? 'active' : ''}`}
-              onClick={() => setActiveView('create')}
-            >
-              ➕ Creare Quiz
-            </button>
-            <button 
-              className={`menu-item ${activeView === 'quizzes' ? 'active' : ''}`}
-              onClick={() => setActiveView('quizzes')}
-            >
-              📚 Quiz-urile Mele
-            </button>
-            <button 
-              className={`menu-item ${activeView === 'results' ? 'active' : ''}`}
-              onClick={() => setActiveView('results')}
-            >
-              📊 Rezultate
-            </button>
+            
+            {/* Butoane doar pentru ADMIN */}
+            {isAdmin && (
+              <>
+                <button 
+                  className={`menu-item ${activeView === 'create' ? 'active' : ''}`}
+                  onClick={() => setActiveView('create')}
+                >
+                  ➕ Creare Quiz
+                </button>
+                <button 
+                  className={`menu-item ${activeView === 'quizzes' ? 'active' : ''}`}
+                  onClick={() => setActiveView('quizzes')}
+                >
+                  📚 Quiz-urile Mele
+                </button>
+              </>
+            )}
+            
+            {/* Butoane doar pentru USER */}
+            {isUser && (
+              <>
+                <button 
+                  className={`menu-item ${activeView === 'available' ? 'active' : ''}`}
+                  onClick={() => setActiveView('available')}
+                >
+                  📝 Quiz-uri Disponibile
+                </button>
+                <button 
+                  className={`menu-item ${activeView === 'results' ? 'active' : ''}`}
+                  onClick={() => setActiveView('results')}
+                >
+                  📊 Rezultatele Mele
+                </button>
+              </>
+            )}
           </nav>
         </div>
 
@@ -66,26 +88,47 @@ const Dashboard = ({ user, onProfileClick }) => {
             <div className="dashboard-main">
               <div className="welcome-section">
                 <h1>Bine ai venit, {user.username}! 🎉</h1>
-                <p className="subtitle">Pregătit pentru un quiz?</p>
+                <p className="subtitle">
+                  {isAdmin ? 'Rol: Administrator' : 'Rol: Utilizator'}
+                </p>
               </div>
 
               <div className="content-placeholder">
                 <div className="placeholder-icon">📚</div>
-                <h3>Crează primul tău quiz!</h3>
-                <p>Apasă pe "Creare Quiz" din meniul din stânga pentru a începe.</p>
+                {isAdmin ? (
+                  <>
+                    <h3>Crează primul tău quiz!</h3>
+                    <p>Apasă pe "Creare Quiz" din meniul din stânga pentru a începe.</p>
+                  </>
+                ) : (
+                  <>
+                    <h3>Rezolvă un quiz!</h3>
+                    <p>Apasă pe "Quiz-uri Disponibile" din meniul din stânga pentru a începe.</p>
+                  </>
+                )}
               </div>
             </div>
           )}
 
-          {activeView === 'create' && (
+          {activeView === 'create' && isAdmin && (
             <CreateQuiz onQuizCreated={handleQuizCreated} />
           )}
 
-          {activeView === 'quizzes' && (
+          {activeView === 'quizzes' && isAdmin && (
             <MyQuizzes key={refreshQuizzes} />
           )}
 
-          {activeView === 'results' && (
+          {activeView === 'available' && isUser && (
+            <div className="dashboard-main">
+              <div className="content-placeholder">
+                <div className="placeholder-icon">📝</div>
+                <h3>Quiz-uri Disponibile</h3>
+                <p>Aici vei vedea toate quiz-urile pe care le poți rezolva.</p>
+              </div>
+            </div>
+          )}
+
+          {activeView === 'results' && isUser && (
             <div className="dashboard-main">
               <div className="content-placeholder">
                 <div className="placeholder-icon">📊</div>
