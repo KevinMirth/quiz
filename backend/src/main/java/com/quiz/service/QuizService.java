@@ -4,8 +4,10 @@ import com.quiz.dto.CreateQuizRequest;
 import com.quiz.dto.QuizResponse;
 import com.quiz.model.Question;
 import com.quiz.model.Quiz;
+import com.quiz.model.User;
 import com.quiz.repository.QuestionRepository;
 import com.quiz.repository.QuizRepository;
+import com.quiz.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,9 @@ public class QuizService {
     
     @Autowired
     private QuestionRepository questionRepository;
+    
+    @Autowired
+    private UserRepository userRepository;
     
     @Transactional
     public QuizResponse createQuiz(Long userId, CreateQuizRequest request) {
@@ -84,6 +89,12 @@ public class QuizService {
         response.setId(quiz.getId());
         response.setTitle(quiz.getTitle());
         response.setCreatedAt(quiz.getCreatedAt());
+        
+        // Adaugă username-ul creatorului
+        User creator = userRepository.findById(quiz.getUserId()).orElse(null);
+        if (creator != null) {
+            response.setCreatorUsername(creator.getUsername());
+        }
         
         List<QuizResponse.QuestionResponse> questionResponses = questions.stream()
                 .map(q -> {

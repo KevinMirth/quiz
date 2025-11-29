@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import CreateQuiz from './CreateQuiz';
 import MyQuizzes from './MyQuizzes';
+import AvailableQuizzes from './AvailableQuizzes';
+import TakeQuiz from './TakeQuiz';
 import './Dashboard.css';
 
 const Dashboard = ({ user, onProfileClick }) => {
   const [activeView, setActiveView] = useState('home');
   const [refreshQuizzes, setRefreshQuizzes] = useState(0);
+  const [selectedQuiz, setSelectedQuiz] = useState(null);
   
   // Verifică rolul utilizatorului
   const isAdmin = user?.role === 'ADMIN';
@@ -16,6 +19,19 @@ const Dashboard = ({ user, onProfileClick }) => {
     setActiveView('quizzes');
     // Forțează reîmprospătarea listei
     setRefreshQuizzes(prev => prev + 1);
+  };
+
+  const handleTakeQuiz = (quiz) => {
+    setSelectedQuiz(quiz);
+  };
+
+  const handleBackToQuizzes = () => {
+    setSelectedQuiz(null);
+    setRefreshQuizzes(prev => prev + 1);
+  };
+
+  const handleQuizSubmit = (result) => {
+    console.log('Quiz completed with result:', result);
   };
 
   return (
@@ -119,13 +135,15 @@ const Dashboard = ({ user, onProfileClick }) => {
           )}
 
           {activeView === 'available' && isUser && (
-            <div className="dashboard-main">
-              <div className="content-placeholder">
-                <div className="placeholder-icon">📝</div>
-                <h3>Quiz-uri Disponibile</h3>
-                <p>Aici vei vedea toate quiz-urile pe care le poți rezolva.</p>
-              </div>
-            </div>
+            selectedQuiz ? (
+              <TakeQuiz 
+                quiz={selectedQuiz} 
+                onBack={handleBackToQuizzes}
+                onSubmit={handleQuizSubmit}
+              />
+            ) : (
+              <AvailableQuizzes onTakeQuiz={handleTakeQuiz} />
+            )
           )}
 
           {activeView === 'results' && isUser && (

@@ -7,6 +7,7 @@ public class QuizResponse {
     private Long id;
     private String title;
     private LocalDateTime createdAt;
+    private String creatorUsername;
     private List<QuestionResponse> questions;
     
     public static class QuestionResponse {
@@ -70,6 +71,14 @@ public class QuizResponse {
     
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+    
+    public String getCreatorUsername() {
+        return creatorUsername;
+    }
+    
+    public void setCreatorUsername(String creatorUsername) {
+        this.creatorUsername = creatorUsername;
     }
     
     public List<QuestionResponse> getQuestions() {
