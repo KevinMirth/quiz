@@ -2,11 +2,15 @@ package com.quiz.service;
 
 import com.quiz.dto.CreateQuizRequest;
 import com.quiz.dto.QuizResponse;
+import com.quiz.dto.QuizResultResponse;
+import com.quiz.dto.SubmitQuizRequest;
 import com.quiz.model.Question;
 import com.quiz.model.Quiz;
+import com.quiz.model.QuizResult;
 import com.quiz.model.User;
 import com.quiz.repository.QuestionRepository;
 import com.quiz.repository.QuizRepository;
+import com.quiz.repository.QuizResultRepository;
 import com.quiz.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +31,9 @@ public class QuizService {
     
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private QuizResultRepository quizResultRepository;
     
     @Transactional
     public QuizResponse createQuiz(Long userId, CreateQuizRequest request) {
@@ -108,6 +115,46 @@ public class QuizService {
                 .collect(Collectors.toList());
         
         response.setQuestions(questionResponses);
+        return response;
+    }
+    
+    @Transactional
+    public QuizResultResponse saveQuizResult(Long userId, SubmitQuizRequest request) {
+        QuizResult result = new QuizResult();
+        result.setUserId(userId);
+        result.setQuizId(request.getQuizId());
+        result.setScore(request.getScore());
+        result.setCorrectAnswers(request.getCorrectAnswers());
+        result.setTotalQuestions(request.getTotalQuestions());
+        
+        result = quizResultRepository.save(result);
+        
+        return buildQuizResultResponse(result);
+    }
+    
+    public List<QuizResultResponse> getUserResults(Long userId) {
+        List<QuizResult> results = quizResultRepository.findByUserIdOrderByCompletedAtDesc(userId);
+        
+        return results.stream()
+                .map(this::buildQuizResultResponse)
+                .collect(Collectors.toList());
+    }
+    
+    private QuizResultResponse buildQuizResultResponse(QuizResult result) {
+        QuizResultResponse response = new QuizResultResponse();
+        response.setId(result.getId());
+        response.setQuizId(result.getQuizId());
+        response.setScore(result.getScore());
+        response.setCorrectAnswers(result.getCorrectAnswers());
+        response.setTotalQuestions(result.getTotalQuestions());
+        response.setCompletedAt(result.getCompletedAt());
+        
+        // Adaugă titlul quiz-ului
+        Quiz quiz = quizRepository.findById(result.getQuizId()).orElse(null);
+        if (quiz != null) {
+            response.setQuizTitle(quiz.getTitle());
+        }
+        
         return response;
     }
 }

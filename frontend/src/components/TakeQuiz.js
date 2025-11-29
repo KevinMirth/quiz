@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import authService from '../services/authService';
 import './TakeQuiz.css';
 
 const TakeQuiz = ({ quiz, onBack, onSubmit }) => {
@@ -26,7 +28,7 @@ const TakeQuiz = ({ quiz, onBack, onSubmit }) => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Calculează scorul
     let correctAnswers = 0;
     quiz.questions.forEach((question) => {
@@ -39,6 +41,29 @@ const TakeQuiz = ({ quiz, onBack, onSubmit }) => {
     const finalScore = (correctAnswers / quiz.questions.length) * 100;
     setScore(finalScore);
     setShowResults(true);
+
+    // Salvează rezultatul în backend
+    try {
+      const token = authService.getCurrentToken();
+      await axios.post(
+        'http://localhost:8080/api/quiz/submit',
+        {
+          quizId: quiz.id,
+          score: finalScore,
+          correctAnswers: correctAnswers,
+          totalQuestions: quiz.questions.length
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      console.log('Quiz result saved successfully');
+    } catch (error) {
+      console.error('Error saving quiz result:', error);
+    }
 
     // Notifică componenta părinte
     if (onSubmit) {

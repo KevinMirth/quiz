@@ -3,6 +3,7 @@ import CreateQuiz from './CreateQuiz';
 import MyQuizzes from './MyQuizzes';
 import AvailableQuizzes from './AvailableQuizzes';
 import TakeQuiz from './TakeQuiz';
+import QuizHistory from './QuizHistory';
 import './Dashboard.css';
 
 const Dashboard = ({ user, onProfileClick }) => {
@@ -147,13 +148,7 @@ const Dashboard = ({ user, onProfileClick }) => {
           )}
 
           {activeView === 'results' && isUser && (
-            <div className="dashboard-main">
-              <div className="content-placeholder">
-                <div className="placeholder-icon">📊</div>
-                <h3>Rezultatele Tale</h3>
-                <p>Aici vei vedea statisticile și rezultatele obținute.</p>
-              </div>
-            </div>
+            <QuizHistory />
           )}
         </div>
       </div>

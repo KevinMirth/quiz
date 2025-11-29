@@ -2,6 +2,8 @@ package com.quiz.controller;
 
 import com.quiz.dto.CreateQuizRequest;
 import com.quiz.dto.QuizResponse;
+import com.quiz.dto.QuizResultResponse;
+import com.quiz.dto.SubmitQuizRequest;
 import com.quiz.security.services.UserDetailsImpl;
 import com.quiz.service.QuizService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,6 +80,34 @@ public class QuizController {
             return ResponseEntity.ok(quizzes);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error fetching quizzes: " + e.getMessage());
+        }
+    }
+    
+    @PostMapping("/submit")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> submitQuiz(@RequestBody SubmitQuizRequest request, Authentication authentication) {
+        try {
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            Long userId = userDetails.getId();
+            
+            QuizResultResponse result = quizService.saveQuizResult(userId, request);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error submitting quiz: " + e.getMessage());
+        }
+    }
+    
+    @GetMapping("/results")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> getMyResults(Authentication authentication) {
+        try {
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            Long userId = userDetails.getId();
+            
+            List<QuizResultResponse> results = quizService.getUserResults(userId);
+            return ResponseEntity.ok(results);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error fetching results: " + e.getMessage());
         }
     }
 }
