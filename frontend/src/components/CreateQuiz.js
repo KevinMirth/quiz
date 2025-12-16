@@ -6,15 +6,15 @@ import './CreateQuiz.css';
 const CreateQuiz = ({ onQuizCreated }) => {
   const [title, setTitle] = useState('');
   const [questions, setQuestions] = useState([
-    { question: '', answer: '' },
-    { question: '', answer: '' },
-    { question: '', answer: '' },
-    { question: '', answer: '' },
-    { question: '', answer: '' },
-    { question: '', answer: '' },
-    { question: '', answer: '' },
-    { question: '', answer: '' },
-    { question: '', answer: '' }
+    { question: '', optionA: '', optionB: '', optionC: '', optionD: '', correctAnswer: '' },
+    { question: '', optionA: '', optionB: '', optionC: '', optionD: '', correctAnswer: '' },
+    { question: '', optionA: '', optionB: '', optionC: '', optionD: '', correctAnswer: '' },
+    { question: '', optionA: '', optionB: '', optionC: '', optionD: '', correctAnswer: '' },
+    { question: '', optionA: '', optionB: '', optionC: '', optionD: '', correctAnswer: '' },
+    { question: '', optionA: '', optionB: '', optionC: '', optionD: '', correctAnswer: '' },
+    { question: '', optionA: '', optionB: '', optionC: '', optionD: '', correctAnswer: '' },
+    { question: '', optionA: '', optionB: '', optionC: '', optionD: '', correctAnswer: '' },
+    { question: '', optionA: '', optionB: '', optionC: '', optionD: '', correctAnswer: '' }
   ]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -25,9 +25,15 @@ const CreateQuiz = ({ onQuizCreated }) => {
     setQuestions(newQuestions);
   };
 
-  const handleAnswerChange = (index, value) => {
+  const handleOptionChange = (index, option, value) => {
     const newQuestions = [...questions];
-    newQuestions[index].answer = value;
+    newQuestions[index][option] = value;
+    setQuestions(newQuestions);
+  };
+
+  const handleCorrectAnswerChange = (index, value) => {
+    const newQuestions = [...questions];
+    newQuestions[index].correctAnswer = value;
     setQuestions(newQuestions);
   };
 
@@ -66,15 +72,15 @@ const CreateQuiz = ({ onQuizCreated }) => {
       // Resetează formularul
       setTitle('');
       setQuestions([
-        { question: '', answer: '' },
-        { question: '', answer: '' },
-        { question: '', answer: '' },
-        { question: '', answer: '' },
-        { question: '', answer: '' },
-        { question: '', answer: '' },
-        { question: '', answer: '' },
-        { question: '', answer: '' },
-        { question: '', answer: '' }
+        { question: '', optionA: '', optionB: '', optionC: '', optionD: '', correctAnswer: '' },
+        { question: '', optionA: '', optionB: '', optionC: '', optionD: '', correctAnswer: '' },
+        { question: '', optionA: '', optionB: '', optionC: '', optionD: '', correctAnswer: '' },
+        { question: '', optionA: '', optionB: '', optionC: '', optionD: '', correctAnswer: '' },
+        { question: '', optionA: '', optionB: '', optionC: '', optionD: '', correctAnswer: '' },
+        { question: '', optionA: '', optionB: '', optionC: '', optionD: '', correctAnswer: '' },
+        { question: '', optionA: '', optionB: '', optionC: '', optionD: '', correctAnswer: '' },
+        { question: '', optionA: '', optionB: '', optionC: '', optionD: '', correctAnswer: '' },
+        { question: '', optionA: '', optionB: '', optionC: '', optionD: '', correctAnswer: '' }
       ]);
 
       // Notifică parent component-ul
@@ -111,7 +117,7 @@ const CreateQuiz = ({ onQuizCreated }) => {
     <div className="create-quiz-container">
       <div className="create-quiz-header">
         <h1>📝 Creare Quiz Nou</h1>
-        <p>Completează titlul și cele 9 întrebări cu răspunsurile lor</p>
+        <p>Completează titlul și cele 9 întrebări cu variantele lor de răspuns (A, B, C, D)</p>
       </div>
 
       <form onSubmit={handleSubmit} className="quiz-form">
@@ -146,14 +152,62 @@ const CreateQuiz = ({ onQuizCreated }) => {
               </div>
 
               <div className="input-group">
-                <label>Răspuns:</label>
+                <label>Varianta A:</label>
                 <input
                   type="text"
-                  value={q.answer}
-                  onChange={(e) => handleAnswerChange(index, e.target.value)}
-                  placeholder={`Răspunsul corect pentru întrebarea ${index + 1}...`}
+                  value={q.optionA}
+                  onChange={(e) => handleOptionChange(index, 'optionA', e.target.value)}
+                  placeholder="Scrie varianta A..."
                   required
                 />
+              </div>
+
+              <div className="input-group">
+                <label>Varianta B:</label>
+                <input
+                  type="text"
+                  value={q.optionB}
+                  onChange={(e) => handleOptionChange(index, 'optionB', e.target.value)}
+                  placeholder="Scrie varianta B..."
+                  required
+                />
+              </div>
+
+              <div className="input-group">
+                <label>Varianta C:</label>
+                <input
+                  type="text"
+                  value={q.optionC}
+                  onChange={(e) => handleOptionChange(index, 'optionC', e.target.value)}
+                  placeholder="Scrie varianta C..."
+                  required
+                />
+              </div>
+
+              <div className="input-group">
+                <label>Varianta D:</label>
+                <input
+                  type="text"
+                  value={q.optionD}
+                  onChange={(e) => handleOptionChange(index, 'optionD', e.target.value)}
+                  placeholder="Scrie varianta D..."
+                  required
+                />
+              </div>
+
+              <div className="input-group">
+                <label>Răspuns Corect:</label>
+                <select
+                  value={q.correctAnswer}
+                  onChange={(e) => handleCorrectAnswerChange(index, e.target.value)}
+                  required
+                >
+                  <option value="">Selectează răspunsul corect...</option>
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="C">C</option>
+                  <option value="D">D</option>
+                </select>
               </div>
             </div>
           ))}

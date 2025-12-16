@@ -33,7 +33,7 @@ const TakeQuiz = ({ quiz, onBack, onSubmit }) => {
     let correctAnswers = 0;
     quiz.questions.forEach((question) => {
       const userAnswer = answers[question.id];
-      if (userAnswer && userAnswer.toLowerCase().trim() === question.answerText.toLowerCase().trim()) {
+      if (userAnswer && userAnswer.toUpperCase() === question.correctAnswer.toUpperCase()) {
         correctAnswers++;
       }
     });
@@ -101,7 +101,7 @@ const TakeQuiz = ({ quiz, onBack, onSubmit }) => {
               <span className="summary-label">Răspunsuri corecte:</span>
               <span className="summary-value">
                 {quiz.questions.filter(q => 
-                  answers[q.id] && answers[q.id].toLowerCase().trim() === q.answerText.toLowerCase().trim()
+                  answers[q.id] && answers[q.id].toUpperCase() === q.correctAnswer.toUpperCase()
                 ).length} / {quiz.questions.length}
               </span>
             </div>
@@ -111,12 +111,18 @@ const TakeQuiz = ({ quiz, onBack, onSubmit }) => {
             <h3>Detalii Răspunsuri:</h3>
             {quiz.questions.map((question, index) => {
               const userAnswer = answers[question.id] || 'Niciun răspuns';
-              const isCorrect = userAnswer.toLowerCase().trim() === question.answerText.toLowerCase().trim();
+              const isCorrect = userAnswer.toUpperCase() === question.correctAnswer.toUpperCase();
               
               return (
                 <div key={question.id} className={`result-item ${isCorrect ? 'correct' : 'incorrect'}`}>
                   <div className="result-question">
                     <strong>Întrebarea {index + 1}:</strong> {question.questionText}
+                  </div>
+                  <div className="result-options">
+                    <div>A: {question.optionA}</div>
+                    <div>B: {question.optionB}</div>
+                    <div>C: {question.optionC}</div>
+                    <div>D: {question.optionD}</div>
                   </div>
                   <div className="result-answer">
                     <span className="result-icon">{isCorrect ? '✅' : '❌'}</span>
@@ -124,7 +130,7 @@ const TakeQuiz = ({ quiz, onBack, onSubmit }) => {
                       <div>Răspunsul tău: <strong>{userAnswer}</strong></div>
                       {!isCorrect && (
                         <div className="correct-answer">
-                          Răspuns corect: <strong>{question.answerText}</strong>
+                          Răspuns corect: <strong>{question.correctAnswer}</strong>
                         </div>
                       )}
                     </div>
@@ -162,16 +168,38 @@ const TakeQuiz = ({ quiz, onBack, onSubmit }) => {
         <div className="question-number">Întrebarea {currentQuestion + 1}</div>
         <div className="question-text">{currentQ.questionText}</div>
 
-        <div className="answer-input-group">
-          <label htmlFor="answer-input">Răspunsul tău:</label>
-          <input
-            id="answer-input"
-            type="text"
-            value={answers[currentQ.id] || ''}
-            onChange={(e) => handleAnswerChange(currentQ.id, e.target.value)}
-            placeholder="Scrie răspunsul aici..."
-            className="answer-input"
-          />
+        <div className="answer-options">
+          <div 
+            className={`option ${answers[currentQ.id] === 'A' ? 'selected' : ''}`}
+            onClick={() => handleAnswerChange(currentQ.id, 'A')}
+          >
+            <div className="option-letter">A</div>
+            <div className="option-text">{currentQ.optionA}</div>
+          </div>
+          
+          <div 
+            className={`option ${answers[currentQ.id] === 'B' ? 'selected' : ''}`}
+            onClick={() => handleAnswerChange(currentQ.id, 'B')}
+          >
+            <div className="option-letter">B</div>
+            <div className="option-text">{currentQ.optionB}</div>
+          </div>
+          
+          <div 
+            className={`option ${answers[currentQ.id] === 'C' ? 'selected' : ''}`}
+            onClick={() => handleAnswerChange(currentQ.id, 'C')}
+          >
+            <div className="option-letter">C</div>
+            <div className="option-text">{currentQ.optionC}</div>
+          </div>
+          
+          <div 
+            className={`option ${answers[currentQ.id] === 'D' ? 'selected' : ''}`}
+            onClick={() => handleAnswerChange(currentQ.id, 'D')}
+          >
+            <div className="option-letter">D</div>
+            <div className="option-text">{currentQ.optionD}</div>
+          </div>
         </div>
 
         <div className="navigation-buttons">

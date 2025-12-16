@@ -51,7 +51,11 @@ public class QuizService {
             Question question = new Question();
             question.setQuizId(quiz.getId());
             question.setQuestionText(qDto.getQuestion());
-            question.setAnswerText(qDto.getAnswer());
+            question.setOptionA(qDto.getOptionA());
+            question.setOptionB(qDto.getOptionB());
+            question.setOptionC(qDto.getOptionC());
+            question.setOptionD(qDto.getOptionD());
+            question.setCorrectAnswer(qDto.getCorrectAnswer().toUpperCase());
             question.setQuestionNumber(i + 1);
             
             questions.add(questionRepository.save(question));
@@ -108,7 +112,11 @@ public class QuizService {
                     QuizResponse.QuestionResponse qr = new QuizResponse.QuestionResponse();
                     qr.setId(q.getId());
                     qr.setQuestionText(q.getQuestionText());
-                    qr.setAnswerText(q.getAnswerText());
+                    qr.setOptionA(q.getOptionA());
+                    qr.setOptionB(q.getOptionB());
+                    qr.setOptionC(q.getOptionC());
+                    qr.setOptionD(q.getOptionD());
+                    qr.setCorrectAnswer(q.getCorrectAnswer());
                     qr.setQuestionNumber(q.getQuestionNumber());
                     return qr;
                 })
